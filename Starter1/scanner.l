@@ -26,39 +26,39 @@ void processFloat(const char *str);
 
 void processIdentifier(const char *str);
 
+void processMathOp(const char *str);
 void processSingleOp(const char *str);
 void processDoubleOp(const char *str);
 
 void processComment(const char *str);
-
 
 %}
 %option noyywrap
 
 INI_DIGIT	[1-9]
 ALL_DIGIT	[0-9]
-CHAR		[a-z A-Z]
+CHAR		[a-zA-Z]
 
-MATHOP		[- * / +]
-COMPOP		[= ! > < & | ^]
+MATHOP		[-*+/]
+SINGLEOP	[!=><&|^]
+DOUBLEOP        "=="|"!="|"<="|">="|"&&"|"||"
 
 WS          	[ \t]
 NEWLINE		[\n]
-COMMENT		[/*]
+COMMENT		"/*"
 
 %%
 
 ({ALL_DIGIT})|("-"{ALL_DIGIT})|({INI_DIGIT}{ALL_DIGIT}*)|("-"{INI_DIGIT}{ALL_DIGIT}*)		{processInt(yytext);}
 ({ALL_DIGIT}+"."{ALL_DIGIT}+)|({ALL_DIGIT}+"."{ALL_DIGIT}+)					{processFloat(yytext);}
 ({CHAR}|"_")({CHAR}|"_"|{ALL_DIGIT})* 								{processIdentifier(yytext);}
-{COMPOP}											{processDoubleOp(yytext);}
 
-
-
-
+{MATHOP}                                                                                        {processMathOp(yytext);}
+{SINGLEOP}											{processSingleOp(yytext);}  
+{DOUBLEOP}											{processDoubleOp(yytext);}               
 {WS}	    		{/*do nothing*/}
 {NEWLINE}    		{yyline++;}
-{COMMENT}       	{
+{COMMENT}                    {
 				int c1      = 0;
 			  	int c2      = yyinput();
 			  	int curline = yyline;
@@ -102,11 +102,14 @@ void processFloat(const char *str){
 void processIdentifier(const char *str){
 	printf("char: %s \n", str);
 }
+void processMathOp(const char *str){
+	printf("math: %s \n", str);
+}
 void processSingleOp(const char *str){
-	printf("single: %s \n", str);
+    printf("Single: %s \n", str);
 }
 void processDoubleOp(const char *str){
-	printf("double: %s \n", str);
+    printf("Double: %s \n", str);
 }
 
 void processComment(const char *str){
