@@ -47,7 +47,7 @@ extern int yyline;        /* variable holding current line number   */
  ***********************************************************************/
 
 %{
-#define YYDEBUG 1
+#define YYDEBUG 1 
 %}
 
 
