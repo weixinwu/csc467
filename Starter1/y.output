@@ -1,0 +1,114 @@
+Terminals unused in grammar
+
+   T_INTEGER
+   T_FLOAT
+   T_IDENTIFIER
+   T_PLUS
+   T_MINUS
+   T_MULTIPLY
+   T_DIVIDE
+   T_NOT
+   T_ASSIGN
+   T_GREATER
+   T_LESS
+   T_BAND
+   T_BOR
+   T_BXOR
+
+
+Rules useless in parser due to conflicts
+
+    4 token: %empty
+    5      | %empty
+
+
+State 2 conflicts: 1 reduce/reduce
+
+
+Grammar
+
+    0 $accept: program $end
+
+    1 program: tokens
+
+    2 tokens: tokens token
+    3       | %empty
+
+    4 token: %empty
+    5      | %empty
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+error (256)
+T_INTEGER (258)
+T_FLOAT (259)
+T_IDENTIFIER (260)
+T_PLUS (261)
+T_MINUS (262)
+T_MULTIPLY (263)
+T_DIVIDE (264)
+T_NOT (265)
+T_ASSIGN (266)
+T_GREATER (267)
+T_LESS (268)
+T_BAND (269)
+T_BOR (270)
+T_BXOR (271)
+
+
+Nonterminals, with rules where they appear
+
+$accept (17)
+    on left: 0
+program (18)
+    on left: 1, on right: 0
+tokens (19)
+    on left: 2 3, on right: 1 2
+token (20)
+    on left: 4 5, on right: 2
+
+
+State 0
+
+    0 $accept: . program $end
+
+    $default  reduce using rule 3 (tokens)
+
+    program  go to state 1
+    tokens   go to state 2
+
+
+State 1
+
+    0 $accept: program . $end
+
+    $end  shift, and go to state 3
+
+
+State 2
+
+    1 program: tokens .
+    2 tokens: tokens . token
+
+    $end      reduce using rule 1 (program)
+    $end      [reduce using rule 4 (token)]
+    $end      [reduce using rule 5 (token)]
+    $default  reduce using rule 1 (program)
+
+    token  go to state 4
+
+
+State 3
+
+    0 $accept: program $end .
+
+    $default  accept
+
+
+State 4
+
+    2 tokens: tokens token .
+
+    $default  reduce using rule 2 (tokens)

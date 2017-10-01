@@ -24,9 +24,9 @@
 #define YYERROR_VERBOSE
 #define yTRACE(x)    { if (traceParser) fprintf(traceFile, "%s\n", x); }
 
-void yyerror(const char* s);    /* what to do in case of error            */
-int yylex();              /* procedure for calling lexical analyzer */
-extern int yyline;        /* variable holding current line number   */
+void yyerror(const char* s);    /* what to do in case of error              */
+int yylex();                    /* procedure for calling lexical analyzer   */
+extern int yyline;              /* variable holding current line number     */
 
 %}
 
@@ -55,10 +55,17 @@ extern int yyline;        /* variable holding current line number   */
 // Can access me from flex using yyval
 
 %union {
-  int num;
+    int     numint;
+    float   numfloat;
+    char*   iden;
 }
 // TODO:Replace myToken with your tokens, you can use these tokens in flex
-%token           myToken1 myToken2  
+%token   T_INTEGER 
+          T_FLOAT 
+          T_IDENTIFIER 
+          T_PLUS T_MINUS T_MULTIPLY T_DIVIDE  
+          T_NOT T_ASSIGN T_GREATER T_LESS T_BAND T_BOR T_BXOR
+
 
 
 %start    program
@@ -83,8 +90,8 @@ tokens
   ;
 // TODO: replace myToken with the token the you defined.
 token
-  :     myToken1 
-  |     myToken2                     
+  :     
+  |                         
   ;
 
 
