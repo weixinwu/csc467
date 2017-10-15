@@ -1,6 +1,6 @@
 %{
 /***********************************************************************
- * --YOUR GROUP INFO SHOULD GO HERE--
+ * --YOUR GROUP INFO SHOULD GO HERE Weixin Wu 1000667405 ShunKong Cheung 1000774263--
  * 
  *   Interface to the parser module for CSC467 course project.
  * 
@@ -52,7 +52,7 @@ extern int yyline;              /* variable holding current line number     */
 
 
 // TODO:Modify me to add more data types
-// Can access me from flex using yyval
+// Can access me from flex using yylval
 
 %union {
     int     numint;
@@ -60,13 +60,82 @@ extern int yyline;              /* variable holding current line number     */
     char*   iden;
 }
 // TODO:Replace myToken with your tokens, you can use these tokens in flex
-%token   T_INTEGER 
-          T_FLOAT 
-          T_IDENTIFIER 
-          T_PLUS T_MINUS T_MULTIPLY T_DIVIDE  
-          T_NOT T_ASSIGN T_GREATER T_LESS T_BAND T_BOR T_BXOR
+%token   
 
+// value(s)
+TOKEN_VAL_INTEGER
+TOKEN_VAL_FLOAT
+TOKEN_VAL_IDENTIFIER
 
+// value: true/false
+TOKEN_VAL_TRUE
+TOKEN_VAL_FALSE
+
+// type: value
+TOKEN_TYP_INT
+TOKEN_TYP_BOOL
+TOKEN_TYP_FLOAT
+
+// type: bool vector
+TOKEN_TYP_BVEC2
+TOKEN_TYP_BVEC3
+TOKEN_TYP_BVEC4
+
+// type: integer vector
+TOKEN_TYP_IVEC2
+TOKEN_TYP_IVEC3
+TOKEN_TYP_IVEC4
+
+// type: float vector
+TOKEN_TYP_VEC2
+TOKEN_TYP_VEC3
+TOKEN_TYP_VEC4
+
+// qualifier
+TOKEN_QUA_CONST
+
+// condition
+TOKEN_CON_IF
+TOKEN_CON_ELSE
+TOKEN_CON_WHILE
+
+// comparison: single 
+TOKEN_ASSIGN
+TOKEN_NOT
+TOKEN_GREATER
+TOKEN_LESS
+
+// comparison: double
+TOKEN_EQUAL
+TOKEN_NOT_EQUAL
+TOKEN_GREATER_EQUAL
+TOKEN_LESS_EQUAL
+
+// math operators
+TOKEN_PLUS
+TOKEN_MINUS
+TOKEN_MULTIPLY
+TOKEN_DIVIDE
+
+TOKEN_BIT_AND
+TOKEN_BIT_OR
+TOKEN_BIT_XOR
+
+TOKEN_AND
+TOKEN_OR
+
+// grammatical
+TOKEN_GRA_BRACKET_OPEN
+TOKEN_GRA_BRACKET_CLOSE
+
+TOKEN_GRA_CURLY_OPEN
+TOKEN_GRA_CURLY_CLOSE
+
+TOKEN_GRA_SQUARE_OPEN
+TOKEN_GRA_SQUARE_CLOSE
+
+TOKEN_GRA_COMMAR
+TOKEN_GRA_COLON
 
 %start    program
 
@@ -81,22 +150,90 @@ extern int yyline;              /* variable holding current line number     */
  *  Phase 3:
  *    1. Add code to rules for construction of AST.
  ***********************************************************************/
-program
-  :   tokens       
-  ;
-tokens
-  :  tokens token  
-  |      
+program: TOKEN_GRA_CURLY_OPEN 	 TOKEN_GRA_CURLY_CLOSE;
+instructions
+  :instructions instruction
+  |
   ;
 // TODO: replace myToken with the token the you defined.
-token
-  :     
-  |                         
+instruction
+  :     declaration TOKEN_GRA_COLON 			
+  |     assignment  TOKEN_GRA_COLON   			
+  |	statement    
+  |	loop      
+  | 	TOKEN_GRA_COLON
+  ;
+
+value
+  :	TOKEN_VAL_FLOAT
+  |	TOKEN_VAL_TRUE
+  |     TOKEN_VAL_FALSE
+  |     TOKEN_VAL_INTEGER
+  |     TOKEN_VAL_IDENTIFIER	
+  ;
+
+type
+  :	TOKEN_TYP_INT 	| TOKEN_TYP_BOOL  | TOKEN_TYP_FLOAT
+  |     TOKEN_TYP_BVEC2 | TOKEN_TYP_BVEC3 | TOKEN_TYP_BVEC4
+  |     TOKEN_TYP_IVEC2 | TOKEN_TYP_IVEC3 | TOKEN_TYP_IVEC4
+  |     TOKEN_TYP_VEC2  | TOKEN_TYP_VEC3  | TOKEN_TYP_VEC4
+  ;
+
+// TODO: multiple index
+index
+  : TOKEN_GRA_SQUARE_OPEN TOKEN_VAL_INTEGER TOKEN_GRA_SQUARE_CLOSE index
+  |  
+  ;
+
+declaration
+  :	type TOKEN_VAL_IDENTIFIER
+  |     type assignment
+  ;
+
+assignment
+  : TOKEN_VAL_IDENTIFIER index TOKEN_ASSIGN expression;
+
+
+// # operator #
+expression
+  :	value index
+  |     expression TOKEN_PLUS expression
+  |     expression TOKEN_MINUS expression
+  |     expression TOKEN_MULTIPLY expression
+  |     expression TOKEN_DIVIDE expression
   ;
 
 
-%%
+statement_if: TOKEN_CON_IF TOKEN_GRA_BRACKET_OPEN condition TOKEN_GRA_BRACKET_CLOSE TOKEN_GRA_CURLY_OPEN instructions TOKEN_GRA_CURLY_CLOSE;
 
+statement_elseif
+  :	statement_if TOKEN_CON_ELSE statement_if
+  |	statement_elseif TOKEN_CON_ELSE statement_if;
+
+statement
+  :	statement_if
+  | 	statement_elseif
+  |	statement_elseif TOKEN_CON_ELSE TOKEN_GRA_BRACKET_OPEN instructions TOKEN_GRA_CURLY_CLOSE
+  |	statement_if TOKEN_CON_ELSE TOKEN_GRA_CURLY_OPEN instructions TOKEN_GRA_CURLY_CLOSE
+  ;
+
+loop
+  :	TOKEN_CON_WHILE TOKEN_GRA_BRACKET_OPEN condition TOKEN_GRA_BRACKET_CLOSE TOKEN_GRA_CURLY_OPEN instructions TOKEN_GRA_CURLY_CLOSE
+  ;
+
+condition 
+  :	value
+  |     TOKEN_NOT value
+  |	value comparison value
+  | 	condition TOKEN_AND condition
+  |	condition TOKEN_OR condition
+  | 	TOKEN_GRA_BRACKET_OPEN condition TOKEN_GRA_BRACKET_CLOSE
+  ;  
+
+// TODO: BIT WISE?   
+comparison:TOKEN_EQUAL | TOKEN_NOT_EQUAL | TOKEN_GREATER_EQUAL | TOKEN_LESS_EQUAL | TOKEN_GREATER|TOKEN_LESS;	
+
+%%
 /***********************************************************************ol
  * Extra C code.
  *

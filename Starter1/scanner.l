@@ -1,7 +1,7 @@
 %{
 /**********************************************************************
  *
- * **YOUR GROUP INFO SHOULD GO HERE Weixin Wu 1000667405	ShunKong Cheung	1000774263**
+ * --YOUR GROUP INFO SHOULD GO HERE Weixin Wu 1000667405 ShunKong Cheung 1000774263--
  *
  *  Interface to the scanner module for CSC467 course project
  **********************************************************************/
@@ -11,25 +11,11 @@
 #include "parser.tab.h"
 #include "string.h"
 
-
 #define YY_USER_INIT { yyin = inputFile; }
 #define	yyinput      input
-#define yTRACE(x)    { if (traceScanner) fprintf(traceFile, "TOKEN %3d : %s\n", x, yytext); }
-#define yERROR(msg,line)    { fprintf(errorFile, "\nLEXICAL ERROR, LINE %d: %s\n", line, msg); errorOccurred = TRUE; yyterminate(); }
+#define yTRACE()    { if (traceScanner) fprintf(traceFile, "TOKEN %3d : %s\n", yyline, yytext); }
 
-
-int CheckInt(void);
 int yyline = 1;
-
-int processInt(const char *str);
-int processFloat(const char *str);
-
-int processIdentifier(const char *str);
-
-
-int processMathOp(const char *str);
-int processSingleOp(const char *str);
-void processDoubleOp(const char *str);
 
 // return the error number line if exist or else return -1
 int processComment(const char *str);
@@ -40,109 +26,92 @@ int processComment(const char *str);
 DIGIT           [0-9]
 CHAR		[a-zA-Z]
 
-MATHOP		[-*+/]
-SINGLEOP	[!=><&|^]
-DOUBLEOP        "=="|"!="|"<="|">="|"&&"|"||"
-
 WS          	[ \t]
 NEWLINE		[\n]
 COMMENT		"/*"
+SIGN		[-]?
+
+INTEGER		({SIGN}{DIGIT}+)
+FLOAT		({SIGN}{DIGIT}+"."{DIGIT}+)
+IDENTIFIER	({CHAR}|"_")({CHAR}|"_"|{DIGIT})*
 
 %%
+"int"		{yTRACE();return TOKEN_TYP_INT;}
+"float"		{yTRACE();return TOKEN_TYP_FLOAT;}
+"bool"		{yTRACE();return TOKEN_TYP_BOOL;}
 
-(({DIGIT}+)|("-"{DIGIT}+))                      {processInt(yytext);}
-({DIGIT}+"."{DIGIT}+)|("-"{DIGIT}+"."{DIGIT}+)	{processFloat(yytext);}
-({CHAR}|"_")({CHAR}|"_"|{DIGIT})* 		{processIdentifier(yytext);}
+"bvec2"		{yTRACE();return TOKEN_TYP_BVEC2;}
+"bvec3"		{yTRACE();return TOKEN_TYP_BVEC3;}
+"bvec4"		{yTRACE();return TOKEN_TYP_BVEC4;}
 
-{MATHOP}                                        {processMathOp(yytext);}
-{SINGLEOP}					{processSingleOp(yytext);}  
-{DOUBLEOP}					{processDoubleOp(yytext);}   
+"ivec2"		{yTRACE();return TOKEN_TYP_IVEC2;}
+"ivec3"		{yTRACE();return TOKEN_TYP_IVEC3;}
+"ivec4"		{yTRACE();return TOKEN_TYP_IVEC4;}
 
-            
-{WS}                                            {/*do nothing*/}
-{NEWLINE}                                       {yyline++;}
-{COMMENT}                                       { if( processComment(yytext) == 0 ) return 0; }
+"vec2"		{yTRACE();return TOKEN_TYP_VEC2;}
+"vec3"		{yTRACE();return TOKEN_TYP_VEC3;}
+"vec4"		{yTRACE();return TOKEN_TYP_VEC4;}
 
-.                                               {
-                                                    char errmsg [] = "Undefine token _";
-                                                    strncpy(errmsg +15, yytext, strlen(errmsg));
-                                                    
-                                                    yERROR(errmsg,yyline); 
-                                                }
+"true"		{yTRACE(); yylval.numint = 1; return TOKEN_VAL_TRUE;}
+"false"		{yTRACE(); yylval.numint = 0; return TOKEN_VAL_FALSE;}
 
+"const"		{yTRACE();return TOKEN_QUA_CONST;}
+
+"if"		{yTRACE();return TOKEN_CON_IF;}
+"else"		{yTRACE();return TOKEN_CON_ELSE;}
+"while"		{yTRACE();return TOKEN_CON_WHILE;}
+
+"="		{yTRACE();return TOKEN_ASSIGN;}
+"!"		{yTRACE();return TOKEN_NOT;}
+">"		{yTRACE();return TOKEN_GREATER;}
+"<"		{yTRACE();return TOKEN_LESS;}
+
+"=="		{yTRACE();return TOKEN_EQUAL;}
+"!="		{yTRACE();return TOKEN_NOT_EQUAL;}
+">="		{yTRACE();return TOKEN_GREATER_EQUAL;}
+"<="		{yTRACE();return TOKEN_LESS_EQUAL;}
+
+"+"		{yTRACE();return TOKEN_PLUS;}
+"-"		{yTRACE();return TOKEN_MINUS;}
+"*"		{yTRACE();return TOKEN_MULTIPLY;}
+"/"		{yTRACE();return TOKEN_DIVIDE;}
+
+"&"		{yTRACE();return TOKEN_BIT_AND;}
+"|"		{yTRACE();return TOKEN_BIT_OR;}
+"^"		{yTRACE();return TOKEN_BIT_XOR;}
+
+"&&"		{yTRACE();return TOKEN_AND;}
+"||"		{yTRACE(); return TOKEN_OR;}
+          
+"("		{yTRACE();return TOKEN_GRA_BRACKET_OPEN;}
+")"		{yTRACE();return TOKEN_GRA_BRACKET_CLOSE;}
+
+"{"		{yTRACE();return TOKEN_GRA_CURLY_OPEN;}
+"}"		{yTRACE();return TOKEN_GRA_CURLY_CLOSE;}
+
+"["		{yTRACE();return TOKEN_GRA_SQUARE_OPEN;}
+"]"		{yTRACE();return TOKEN_GRA_SQUARE_CLOSE;}
+
+","		{yTRACE();return TOKEN_GRA_COMMAR;}
+";"		{yTRACE();return TOKEN_GRA_COLON;}
+  
+{WS}            {/*do nothing*/}
+{NEWLINE}       {yyline++;}
+{COMMENT}       { if( processComment(yytext) == 0 ) return 0; }
+
+
+{INTEGER}	{yTRACE(); yylval.numint=atoi(yytext); return TOKEN_VAL_INTEGER;}
+{FLOAT}		{yTRACE(); yylval.numfloat=atof(yytext); return TOKEN_VAL_FLOAT;}
+{IDENTIFIER}	{yTRACE(); yylval.iden=yytext; return TOKEN_VAL_IDENTIFIER;}
+
+<<EOF>>		{yyterminate();}
+.               {fprintf(errorFile, "\nLEXICAL ERROR, LINE %d: Undefined Token %s\n", yyline, yytext); errorOccurred = TRUE; yyterminate();}
 
 
 %%
 /**********************************************************************
  * FOOTER FILE
  **********************************************************************/
-int processInt(const char *str){
-        yylval.numint = atoi(str);
-        return T_INTEGER;
-}
-int processFloat(const char *str){
-        yylval.numfloat = atof(str);
-        return T_FLOAT;
-}
-int processIdentifier(const char *str){
-        
-        // get length + 1
-        unsigned int ilen = yyleng + 1;
-
-        // allocate memory
-        char* ival = (char*)malloc( ilen * sizeof(char));
-
-        // copy value
-        memset(ival, 0, ilen);
-        strncpy(ival, str, ilen-1);
-
-        // output
-        yylval.iden = ival;
-        return T_IDENTIFIER;
-}
-int processMathOp(const char *str){
-
-    // error
-    char errmsg [] = "Undefine token k";
-
-    // handling
-    switch (str[0]){
-        case '+':return T_PLUS;
-        case '-':return T_MINUS;
-        case '*':return T_MULTIPLY;
-        case '/':return T_DIVIDE;
-        default: break;
-    }
-
-    // return
-    errmsg[ strlen(errmsg)-1] = str[0];
-    yERROR(errmsg, yyline);        
-}
-int processSingleOp(const char *str){
-     // error
-    char errmsg [] = "Undefine token k";
-
-    // handling
-    switch (str[0]){
-        case '!':return T_NOT;
-        case '=':return T_ASSIGN;
-        case '>':return T_GREATER;
-        case '<':return T_LESS;
-        case '&':return T_BAND;
-        case '|':return T_BOR;
-        case '^':return T_BXOR;
-       
-        default: break;
-    }
-
-    // return
-    errmsg[ strlen(errmsg)-1] = str[0];
-   yERROR(errmsg, yyline); 
-}
-void processDoubleOp(const char *str){
-    printf("Double: %s \n", str);
-}
-
 int processComment(const char *str){
     int c1      = 0;
     int c2      = yyinput();
@@ -151,7 +120,7 @@ int processComment(const char *str){
     while(!(c1 == '*' && c2 == '/')) {
         /* if next char is EOF, no closing is found, error occur*/
         if (c2 == EOF) {	
-            yERROR("Unmatch /*", curline);
+	    fprintf(errorFile, "\nLEXICAL ERROR, LINE %d: Unmatch /*\n", curline); errorOccurred = TRUE; yyterminate();
         }
 
         /* indent to next pair of chars*/

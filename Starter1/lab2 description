@@ -1,0 +1,51 @@
+/**********************************************************************
+ *
+ * --YOUR GROUP INFO SHOULD GO HERE Weixin Wu 1000667405 ShunKong Cheung 1000774263--
+ *
+ *  Interface to the scanner module for CSC467 course project
+ **********************************************************************/
+
+/***********
+ * todo:
+ * 1) bitwise comparision
+ * 2) multiple index
+ * 3) presedence
+************/
+
+Terminal "program" is the root of the parser tree, a program contains instructions.
+There are different kinds of instructions, declaration, assignment, statement, loop and empty instructions.
+
+PROG 		-> { INSTRUCTIONS } 
+INSTRUCTIONS 	-> INSTRUCTIONS INSTRUCTION
+		-> empty
+INSTRUCTION 	-> DECLARATION ;
+  		-> ASSIGNMENTS;
+		-> STATEMENT
+		-> LOOP
+		-> empty 
+ 		-> ;
+VALUE		-> true false # id
+TYPE		-> int bool float bvec2 bvec3 bvec4 vec2 vec3 vec4 ivec2 ivec3 ivec4
+INDEX		-> [#]
+DECLARATION 	-> TYPE id
+ASSIGNMENT	-> id INDEX = EXPRESSION
+EXPRESSION	-> VALUE INDEX
+		-> EXPRESSION + EXPRESSION
+		-> EXPRESSION - EXPRESSION
+		-> ...
+STATEMENT_IF	-> if(CONDITION){instructions}
+STATEMENT_ELSEIF-> STATEMENT_IF else STATEMENT_IF
+		-> STATEMENT_ELSEIF else STATEMENT_IF
+STATEMENT	-> STATEMENT_IF
+		-> STATEMENT_ELSEIF
+		-> STATEMENT_ELSEIF else { INSTRUCTIONS }
+		-> STATEMENT_IF else { INSTRUCTIONS }
+LOOP		-> while (CONDITION ){INSTRUCTIONS}
+
+CONDITION	-> VALUE
+		-> !VALUE
+		-> VALUE COMPARION VALUE
+		-> CONDITION && CONDITION
+		-> CONDITION or CONDITION
+		-> (CONDITION)
+COMPARISON	-> == | != | >= | <= | > | < 
