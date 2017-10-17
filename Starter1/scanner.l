@@ -65,6 +65,7 @@ IDENTIFIER	({CHAR}|"_")({CHAR}|"_"|{DIGIT})*
 "!"		{yTRACE();return TOKEN_NOT;}
 ">"		{yTRACE();return TOKEN_GREATER;}
 "<"		{yTRACE();return TOKEN_LESS;}
+"^"		{yTRACE();return TOKEN_EXPONENT;}
 
 "=="		{yTRACE();return TOKEN_EQUAL;}
 "!="		{yTRACE();return TOKEN_NOT_EQUAL;}
@@ -76,9 +77,6 @@ IDENTIFIER	({CHAR}|"_")({CHAR}|"_"|{DIGIT})*
 "*"		{yTRACE();return TOKEN_MULTIPLY;}
 "/"		{yTRACE();return TOKEN_DIVIDE;}
 
-"&"		{yTRACE();return TOKEN_BIT_AND;}
-"|"		{yTRACE();return TOKEN_BIT_OR;}
-"^"		{yTRACE();return TOKEN_BIT_XOR;}
 
 "&&"		{yTRACE();return TOKEN_AND;}
 "||"		{yTRACE(); return TOKEN_OR;}

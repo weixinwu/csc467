@@ -104,6 +104,7 @@ TOKEN_ASSIGN
 TOKEN_NOT
 TOKEN_GREATER
 TOKEN_LESS
+TOKEN_EXPONENT
 
 // comparison: double
 TOKEN_EQUAL
@@ -116,10 +117,6 @@ TOKEN_PLUS
 TOKEN_MINUS
 TOKEN_MULTIPLY
 TOKEN_DIVIDE
-
-TOKEN_BIT_AND
-TOKEN_BIT_OR
-TOKEN_BIT_XOR
 
 TOKEN_AND
 TOKEN_OR
@@ -140,10 +137,12 @@ TOKEN_GRA_COLON
 //Lower the rule, the higher the precendence
 //Left associatitivity vs. right associativity
 %left TOKEN_OR
+%left TOKEN_AND
 %left TOKEN_EQUAL TOKEN_NOT_EQUAL TOKEN_GREATER_EQUAL TOKEN_LESS_EQUAL TOKEN_GREATER TOKEN_LESS
 %left TOKEN_PLUS TOKEN_MINUS
-%left TOKEN_MULTIPLY TOKEN_DIVIDE
-%left TOKEN_NOT
+%left TOKEN_MULTIPLY TOKEN_DIVIDE 
+%right TOKEN_EXPONENT	
+%left TOKEN_NOT NEG 
 
 
 %start    program
@@ -159,18 +158,24 @@ TOKEN_GRA_COLON
  *  Phase 3:
  *    1. Add code to rules for construction of AST.
  ***********************************************************************/
+
+/*
+ * TODO: functions
+ */
+
 program
   : TOKEN_GRA_CURLY_OPEN instructions TOKEN_GRA_CURLY_CLOSE {yTRACE("program -> {instructions}");};
+
 instructions
-  :instructions instruction		{yTRACE("instructions -> instructions instruction");}
+  :instructions instruction		//{yTRACE("instructions -> instructions instruction");}
   |
   ;
-// TODO: replace myToken with the token the you defined.
+
 instruction
-  :     declaration TOKEN_GRA_COLON 	{yTRACE("instruction -> declaration");}
-  |     assignment  TOKEN_GRA_COLON   	{yTRACE("instruction -> assignment");}
-  |	statement    			{yTRACE("instruction -> statement");}
-  |	loop      			{yTRACE("instruction -> loop");}
+  :     declaration TOKEN_GRA_COLON 	{yTRACE("instruction -> declaration\n");}
+  |     assignment  TOKEN_GRA_COLON   	{yTRACE("instruction -> assignment\n");}
+  |	statement    			{yTRACE("instruction -> statement\n");}
+  |	loop      			{yTRACE("instruction -> loop\n");}
   | 	TOKEN_GRA_COLON
   ;
 
@@ -179,7 +184,7 @@ value
   |	TOKEN_VAL_TRUE			{yTRACE("value -> true");}
   |     TOKEN_VAL_FALSE			{yTRACE("value -> false");}
   |     TOKEN_VAL_INTEGER		{yTRACE("value -> integer");}//printf("[%d] ", yylval.numint);}
-  |     TOKEN_VAL_IDENTIFIER		{yTRACE("value -> identifer");}//printf("[%s] ", yylval.iden);}
+  |     TOKEN_VAL_IDENTIFIER index	{yTRACE("value -> identifer");}//{printf("[%s] ", yylval.iden);}//
   ;
 
 type
@@ -213,21 +218,23 @@ assignment
   ;
 
 expression
-  :	value index				{yTRACE("expression -> value index"); }
+  :	value 					{yTRACE("expression -> value"); }
   |     expression TOKEN_PLUS expression	{yTRACE("expression -> exp + exp");}
   |     expression TOKEN_MINUS expression	{yTRACE("expression -> exp - exp");}
   |     expression TOKEN_MULTIPLY expression	{yTRACE("expression -> exp * exp");}
   |     expression TOKEN_DIVIDE expression	{yTRACE("expression -> exp / exp");}
-  |	TOKEN_GRA_BRACKET_OPEN expression TOKEN_GRA_BRACKET_CLOSE {yTRACE("expression -> (exp)");}
-  |	TOKEN_NOT expression			{yTRACE("expression -> !expression");}	       // check this
-  | 	expression TOKEN_AND expression		{yTRACE("cond -> expression && expression");}
-  |	expression TOKEN_OR expression		{yTRACE("cond -> expression || expression");}
-  |	expression TOKEN_BIT_AND expression	{yTRACE("cond -> expression & expression");}
-  | 	expression TOKEN_BIT_OR expression	{yTRACE("cond -> expression | expression");}
-  | 	expression TOKEN_BIT_XOR expression	{yTRACE("cond -> expression ^ expression");}
+  | 	TOKEN_MINUS expression %prec NEG	{yTRACE("expression -> -expression");}
+  | 	expression TOKEN_EXPONENT expression	{yTRACE("expression -> expression ^ expression");}
+
+  |	expression comparison expression	{yTRACE("expression -> expression compare expression");}
+  | 	expression TOKEN_AND expression		{yTRACE("expression -> expression && expression");}
+  |	expression TOKEN_OR expression		{yTRACE("expression -> expression || expression");}
+  |	TOKEN_NOT expression			{yTRACE("expression -> !expression");}	      
+
+  |	TOKEN_GRA_BRACKET_OPEN expression TOKEN_GRA_BRACKET_CLOSE {yTRACE("expression -> (expression)");}
   ;
 
-statement_if: TOKEN_CON_IF TOKEN_GRA_BRACKET_OPEN condition TOKEN_GRA_BRACKET_CLOSE TOKEN_GRA_CURLY_OPEN instructions TOKEN_GRA_CURLY_CLOSE;
+statement_if: TOKEN_CON_IF TOKEN_GRA_BRACKET_OPEN expression TOKEN_GRA_BRACKET_CLOSE TOKEN_GRA_CURLY_OPEN instructions TOKEN_GRA_CURLY_CLOSE;
 
 statement_elseif
   :	statement_if TOKEN_CON_ELSE statement_if 	
@@ -235,21 +242,19 @@ statement_elseif
   ;
 
 statement
-  :	statement_if		{yTRACE("statement -> if(cond){instructions}");}				
-  | 	statement_elseif	{yTRACE("statement -> if(cond){instructions}elseif(cond){instructions}");}
-  |	statement_elseif TOKEN_CON_ELSE TOKEN_GRA_BRACKET_OPEN instructions TOKEN_GRA_CURLY_CLOSE {yTRACE("statement -> if(cond){instructions}elseif(cond){instructions} else{instructions}");}
-  |	statement_if TOKEN_CON_ELSE TOKEN_GRA_CURLY_OPEN instructions TOKEN_GRA_CURLY_CLOSE {yTRACE("statement -> if(cond){instructions}else(cond){instructions}");}
+  :	statement_if		{yTRACE("statement -> if(exp){...}");}
+  | 	statement_elseif	{yTRACE("statement -> if(exp){...} else if(cond){...}");}
+  |	statement_elseif TOKEN_CON_ELSE TOKEN_GRA_CURLY_OPEN instructions TOKEN_GRA_CURLY_CLOSE 
+	    {yTRACE("statement -> if(exp){...} else if(exp){...} else {...}");}
+  |	statement_if TOKEN_CON_ELSE TOKEN_GRA_CURLY_OPEN instructions TOKEN_GRA_CURLY_CLOSE 
+	   			{yTRACE("statement -> if(exp){...}else(cond){...}");}
   ;
 
 loop
-  :	TOKEN_CON_WHILE TOKEN_GRA_BRACKET_OPEN condition TOKEN_GRA_BRACKET_CLOSE TOKEN_GRA_CURLY_OPEN instructions TOKEN_GRA_CURLY_CLOSE {yTRACE("loop -> while(cond){instructions}");}
+  :	TOKEN_CON_WHILE TOKEN_GRA_BRACKET_OPEN expression TOKEN_GRA_BRACKET_CLOSE 
+	TOKEN_GRA_CURLY_OPEN instructions TOKEN_GRA_CURLY_CLOSE 
+						{yTRACE("loop -> while(cond){instructions}");}
   ;
-
-condition 
-  :	expression						{yTRACE("cond -> expression");}
-  |	expression comparison expression			{yTRACE("cond -> expression compare expression");}
-  | 	TOKEN_GRA_BRACKET_OPEN condition TOKEN_GRA_BRACKET_CLOSE{yTRACE("expression -> (condition)");}
-  ;  
  
 comparison
   :	TOKEN_EQUAL 		{yTRACE("comp -> ==");}

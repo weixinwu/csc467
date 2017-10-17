@@ -9,6 +9,8 @@
    int i = -1;
    int j = -0.01;
 
+   int a = a+b < 0;
+
 
 if (true){
    k = abcd;
@@ -17,10 +19,23 @@ if (true){
    temp[2] = gl_Color[2];
    temp[3] = gl_Color[3] * gl_FragCoord[0] * gl_FragCoord[1];
 }
+else if(false){
+  jjl = yyx;
+	abc = def;
+  ii = !j ^ y && k; 
+  abc = a + -b;
+}
 else{
    temp = gl_Color;
 }
-  gl_FragColor = temp;
+  
+
+ gl_FragColor = temp;
+
+ while( a+b > 0){
+   a = a - 1;
+   a = a +1;
+ }
 
 
 }

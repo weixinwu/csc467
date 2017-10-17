@@ -2,18 +2,18 @@
  *
  * --YOUR GROUP INFO SHOULD GO HERE Weixin Wu 1000667405 ShunKong Cheung 1000774263--
  *
- *  Interface to the scanner module for CSC467 course project
+ * todo:
+ * 2) multiple index
  **********************************************************************/
 
-/***********
- * todo:
- * 1) bitwise comparision
- * 2) multiple index
- * 3) presedence
-************/
 
 Terminal "program" is the root of the parser tree, a program contains instructions.
 There are different kinds of instructions, declaration, assignment, statement, loop and empty instructions.
+
+In terms of token, there are precdence, and associative
+Lower the rule, the higher the precendence
+Left associatitivity vs. right associativity
+
 
 PROG 		-> { INSTRUCTIONS } 
 INSTRUCTIONS 	-> INSTRUCTIONS INSTRUCTION
@@ -32,20 +32,27 @@ ASSIGNMENT	-> id INDEX = EXPRESSION
 EXPRESSION	-> VALUE INDEX
 		-> EXPRESSION + EXPRESSION
 		-> EXPRESSION - EXPRESSION
-		-> ...
-STATEMENT_IF	-> if(CONDITION){instructions}
+		-> EXPRESSION * EXPRESSION
+		-> EXPRESSION / EXPRESSION
+		-> (EXPRESSION)
+		-> - EXPRESSION
+		-> 
+
+		-> EXPRESSION COMPARION EXPRESSION
+		-> EXPRESSION && EXPRESSION
+		-> EXPRESSION || EXPRESSION
+		-> !EXPRESSION
+
+		-> EXPRESSION ^ EXPRESSION
+
+STATEMENT_IF	-> if(EXPRESSION){instructions}
 STATEMENT_ELSEIF-> STATEMENT_IF else STATEMENT_IF
 		-> STATEMENT_ELSEIF else STATEMENT_IF
 STATEMENT	-> STATEMENT_IF
 		-> STATEMENT_ELSEIF
 		-> STATEMENT_ELSEIF else { INSTRUCTIONS }
 		-> STATEMENT_IF else { INSTRUCTIONS }
-LOOP		-> while (CONDITION ){INSTRUCTIONS}
+LOOP		-> while (EXPRESSION ){INSTRUCTIONS}
 
-CONDITION	-> VALUE
-		-> !VALUE
-		-> VALUE COMPARION VALUE
-		-> CONDITION && CONDITION
-		-> CONDITION or CONDITION
-		-> (CONDITION)
+
 COMPARISON	-> == | != | >= | <= | > | < 
