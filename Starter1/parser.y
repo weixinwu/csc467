@@ -137,6 +137,15 @@ TOKEN_GRA_SQUARE_CLOSE
 TOKEN_GRA_COMMAR
 TOKEN_GRA_COLON
 
+//Lower the rule, the higher the precendence
+//Left associatitivity vs. right associativity
+%left TOKEN_OR
+%left TOKEN_EQUAL TOKEN_NOT_EQUAL TOKEN_GREATER_EQUAL TOKEN_LESS_EQUAL TOKEN_GREATER TOKEN_LESS
+%left TOKEN_PLUS TOKEN_MINUS
+%left TOKEN_MULTIPLY TOKEN_DIVIDE
+%left TOKEN_NOT
+
+
 %start    program
 
 %%
@@ -150,89 +159,106 @@ TOKEN_GRA_COLON
  *  Phase 3:
  *    1. Add code to rules for construction of AST.
  ***********************************************************************/
-program: TOKEN_GRA_CURLY_OPEN 	 TOKEN_GRA_CURLY_CLOSE;
+program
+  : TOKEN_GRA_CURLY_OPEN instructions TOKEN_GRA_CURLY_CLOSE {yTRACE("program -> {instructions}");};
 instructions
-  :instructions instruction
+  :instructions instruction		{yTRACE("instructions -> instructions instruction");}
   |
   ;
 // TODO: replace myToken with the token the you defined.
 instruction
-  :     declaration TOKEN_GRA_COLON 			
-  |     assignment  TOKEN_GRA_COLON   			
-  |	statement    
-  |	loop      
+  :     declaration TOKEN_GRA_COLON 	{yTRACE("instruction -> declaration");}
+  |     assignment  TOKEN_GRA_COLON   	{yTRACE("instruction -> assignment");}
+  |	statement    			{yTRACE("instruction -> statement");}
+  |	loop      			{yTRACE("instruction -> loop");}
   | 	TOKEN_GRA_COLON
   ;
 
 value
-  :	TOKEN_VAL_FLOAT
-  |	TOKEN_VAL_TRUE
-  |     TOKEN_VAL_FALSE
-  |     TOKEN_VAL_INTEGER
-  |     TOKEN_VAL_IDENTIFIER	
+  :	TOKEN_VAL_FLOAT			{yTRACE("value -> float");}//printf("[%f] ", yylval.numfloat);}
+  |	TOKEN_VAL_TRUE			{yTRACE("value -> true");}
+  |     TOKEN_VAL_FALSE			{yTRACE("value -> false");}
+  |     TOKEN_VAL_INTEGER		{yTRACE("value -> integer");}//printf("[%d] ", yylval.numint);}
+  |     TOKEN_VAL_IDENTIFIER		{yTRACE("value -> identifer");}//printf("[%s] ", yylval.iden);}
   ;
 
 type
-  :	TOKEN_TYP_INT 	| TOKEN_TYP_BOOL  | TOKEN_TYP_FLOAT
-  |     TOKEN_TYP_BVEC2 | TOKEN_TYP_BVEC3 | TOKEN_TYP_BVEC4
-  |     TOKEN_TYP_IVEC2 | TOKEN_TYP_IVEC3 | TOKEN_TYP_IVEC4
-  |     TOKEN_TYP_VEC2  | TOKEN_TYP_VEC3  | TOKEN_TYP_VEC4
+  :	TOKEN_TYP_INT 			{yTRACE("type -> int");}
+  | 	TOKEN_TYP_BOOL  		{yTRACE("type -> bool");} 
+  | 	TOKEN_TYP_FLOAT 		{yTRACE("type -> bvec2");}
+  |     TOKEN_TYP_BVEC2  		{yTRACE("type -> bvec3");}
+  | 	TOKEN_TYP_BVEC3  		{yTRACE("type -> bvec3");}
+  | 	TOKEN_TYP_BVEC4 		{yTRACE("type -> bvec4");}
+  |     TOKEN_TYP_IVEC2  		{yTRACE("type -> ivec2");}
+  | 	TOKEN_TYP_IVEC3  		{yTRACE("type -> ivec3");}
+  | 	TOKEN_TYP_IVEC4 		{yTRACE("type -> ivec4");}
+  |     TOKEN_TYP_VEC2   		{yTRACE("type -> vec2");}
+  | 	TOKEN_TYP_VEC3   		{yTRACE("type -> vec3");}
+  | 	TOKEN_TYP_VEC4 			{yTRACE("type -> vec4");}
   ;
 
 // TODO: multiple index
 index
-  : TOKEN_GRA_SQUARE_OPEN TOKEN_VAL_INTEGER TOKEN_GRA_SQUARE_CLOSE index
+  : TOKEN_GRA_SQUARE_OPEN TOKEN_VAL_INTEGER TOKEN_GRA_SQUARE_CLOSE index	
   |  
   ;
 
 declaration
-  :	type TOKEN_VAL_IDENTIFIER
-  |     type assignment
+  :	type TOKEN_VAL_IDENTIFIER	{yTRACE("declaration -> type identifier");}				
+  |     type assignment			{yTRACE("declaration -> type assignment");}
   ;
 
 assignment
-  : TOKEN_VAL_IDENTIFIER index TOKEN_ASSIGN expression;
-
-
-// # operator #
-expression
-  :	value index
-  |     expression TOKEN_PLUS expression
-  |     expression TOKEN_MINUS expression
-  |     expression TOKEN_MULTIPLY expression
-  |     expression TOKEN_DIVIDE expression
+  : TOKEN_VAL_IDENTIFIER index TOKEN_ASSIGN expression {yTRACE("assignment -> identifier index = expression");}
   ;
 
+expression
+  :	value index				{yTRACE("expression -> value index"); }
+  |     expression TOKEN_PLUS expression	{yTRACE("expression -> exp + exp");}
+  |     expression TOKEN_MINUS expression	{yTRACE("expression -> exp - exp");}
+  |     expression TOKEN_MULTIPLY expression	{yTRACE("expression -> exp * exp");}
+  |     expression TOKEN_DIVIDE expression	{yTRACE("expression -> exp / exp");}
+  |	TOKEN_GRA_BRACKET_OPEN expression TOKEN_GRA_BRACKET_CLOSE {yTRACE("expression -> (exp)");}
+  |	TOKEN_NOT expression			{yTRACE("expression -> !expression");}	       // check this
+  | 	expression TOKEN_AND expression		{yTRACE("cond -> expression && expression");}
+  |	expression TOKEN_OR expression		{yTRACE("cond -> expression || expression");}
+  |	expression TOKEN_BIT_AND expression	{yTRACE("cond -> expression & expression");}
+  | 	expression TOKEN_BIT_OR expression	{yTRACE("cond -> expression | expression");}
+  | 	expression TOKEN_BIT_XOR expression	{yTRACE("cond -> expression ^ expression");}
+  ;
 
 statement_if: TOKEN_CON_IF TOKEN_GRA_BRACKET_OPEN condition TOKEN_GRA_BRACKET_CLOSE TOKEN_GRA_CURLY_OPEN instructions TOKEN_GRA_CURLY_CLOSE;
 
 statement_elseif
-  :	statement_if TOKEN_CON_ELSE statement_if
-  |	statement_elseif TOKEN_CON_ELSE statement_if;
+  :	statement_if TOKEN_CON_ELSE statement_if 	
+  |	statement_elseif TOKEN_CON_ELSE statement_if
+  ;
 
 statement
-  :	statement_if
-  | 	statement_elseif
-  |	statement_elseif TOKEN_CON_ELSE TOKEN_GRA_BRACKET_OPEN instructions TOKEN_GRA_CURLY_CLOSE
-  |	statement_if TOKEN_CON_ELSE TOKEN_GRA_CURLY_OPEN instructions TOKEN_GRA_CURLY_CLOSE
+  :	statement_if		{yTRACE("statement -> if(cond){instructions}");}				
+  | 	statement_elseif	{yTRACE("statement -> if(cond){instructions}elseif(cond){instructions}");}
+  |	statement_elseif TOKEN_CON_ELSE TOKEN_GRA_BRACKET_OPEN instructions TOKEN_GRA_CURLY_CLOSE {yTRACE("statement -> if(cond){instructions}elseif(cond){instructions} else{instructions}");}
+  |	statement_if TOKEN_CON_ELSE TOKEN_GRA_CURLY_OPEN instructions TOKEN_GRA_CURLY_CLOSE {yTRACE("statement -> if(cond){instructions}else(cond){instructions}");}
   ;
 
 loop
-  :	TOKEN_CON_WHILE TOKEN_GRA_BRACKET_OPEN condition TOKEN_GRA_BRACKET_CLOSE TOKEN_GRA_CURLY_OPEN instructions TOKEN_GRA_CURLY_CLOSE
+  :	TOKEN_CON_WHILE TOKEN_GRA_BRACKET_OPEN condition TOKEN_GRA_BRACKET_CLOSE TOKEN_GRA_CURLY_OPEN instructions TOKEN_GRA_CURLY_CLOSE {yTRACE("loop -> while(cond){instructions}");}
   ;
 
 condition 
-  :	value
-  |     TOKEN_NOT value
-  |	value comparison value
-  | 	condition TOKEN_AND condition
-  |	condition TOKEN_OR condition
-  | 	TOKEN_GRA_BRACKET_OPEN condition TOKEN_GRA_BRACKET_CLOSE
+  :	expression						{yTRACE("cond -> expression");}
+  |	expression comparison expression			{yTRACE("cond -> expression compare expression");}
+  | 	TOKEN_GRA_BRACKET_OPEN condition TOKEN_GRA_BRACKET_CLOSE{yTRACE("expression -> (condition)");}
   ;  
-
-// TODO: BIT WISE?   
-comparison:TOKEN_EQUAL | TOKEN_NOT_EQUAL | TOKEN_GREATER_EQUAL | TOKEN_LESS_EQUAL | TOKEN_GREATER|TOKEN_LESS;	
-
+ 
+comparison
+  :	TOKEN_EQUAL 		{yTRACE("comp -> ==");}
+  | 	TOKEN_NOT_EQUAL 	{yTRACE("comp -> <=");}
+  | 	TOKEN_GREATER_EQUAL 	{yTRACE("comp -> >=");}
+  | 	TOKEN_LESS_EQUAL 	{yTRACE("comp -> !=");}
+  | 	TOKEN_GREATER 		{yTRACE("comp -> >");}
+  | 	TOKEN_LESS		{yTRACE("comp -> <");}
+  ;
 %%
 /***********************************************************************ol
  * Extra C code.

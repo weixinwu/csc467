@@ -26,7 +26,7 @@ INSTRUCTION 	-> DECLARATION ;
  		-> ;
 VALUE		-> true false # id
 TYPE		-> int bool float bvec2 bvec3 bvec4 vec2 vec3 vec4 ivec2 ivec3 ivec4
-INDEX		-> [#]
+INDEX		-> [int]
 DECLARATION 	-> TYPE id
 ASSIGNMENT	-> id INDEX = EXPRESSION
 EXPRESSION	-> VALUE INDEX
