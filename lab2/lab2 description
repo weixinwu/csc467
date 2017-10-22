@@ -7,6 +7,8 @@
  **********************************************************************/
 
 
+We continued the lab code from lab1(Did not use Starter2)
+
 Terminal "program" is the root of the parser tree, a program contains instructions.
 There are different kinds of instructions, declaration, assignment, statement, loop and empty instructions.
 
