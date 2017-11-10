@@ -1,0 +1,29 @@
+g++ -g -O0 -Wall   -c -o compiler467.o compiler467.c
+g++ -g -O0 -Wall   -c -o globalvars.o globalvars.c
+bison -dtvy parser.y 
+parser.y:147.16-24: warning: symbol blablabla is used, but is not defined as a token and has no rules [-Wother]
+ %type <as_ast> blablabla
+                ^^^^^^^^^
+parser.y: warning: 1 nonterminal useless in grammar [-Wother]
+parser.y:147.16-24: warning: nonterminal useless in grammar: blablabla [-Wother]
+ %type <as_ast> blablabla
+                ^^^^^^^^^
+parser.y: warning: 13 shift/reduce conflicts [-Wconflicts-sr]
+mv -f y.tab.c parser.c
+mv y.tab.h parser.tab.h
+flex  -t scanner.l > scanner.c
+g++ -g -O0 -Wall   -c -o scanner.o scanner.c
+<stdout>: In function 'int yy_get_next_buffer()':
+<stdout>:652:18: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+<stdout>:1298:3: note: in expansion of macro 'YY_INPUT'
+<stdout>: At global scope:
+<stdout>:1399:17: warning: 'void yyunput(int, char*)' defined but not used [-Wunused-function]
+g++ -g -O0 -Wall   -c -o parser.o parser.c
+g++ -g -O0 -Wall   -c -o ast.o ast.c
+ast.c: In function 'void postorder(node*, void (*)(node*))':
+ast.c:4:17: error: 'NULL' was not declared in this scope
+  if(currnode == NULL)return;
+                 ^~~~
+<builtin>: recipe for target 'ast.o' failed
+make: *** [ast.o] Error 1
+rm scanner.c

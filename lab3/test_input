@@ -1,0 +1,42 @@
+{
+   a = 1+2;
+   b = a + b;
+   c = d;
+   x = 1+ 2*3;
+   y = (1+2) * 3;
+   vec4 taemp = {2,4,6,8};
+   vec4 a = a + b;
+   int i = -1;
+   int j = -0.01;
+
+   int a = a+b < 0;
+
+
+if (true){
+   k = abcd;
+   temp[0] = gl_Color[0] * gl_FragCoord[0];
+   temp[1] = gl_Color[1] * gl_FragCoord[1];
+   temp[2] = gl_Color[2];
+   temp[3] = gl_Color[3] * gl_FragCoord[0] * gl_FragCoord[1];
+}
+else if(false){
+  jjl = yyx;
+	abc = def;
+  ii = !j ^ y && k; 
+  abc = a + -b;
+}
+else{
+   temp = gl_Color;
+}
+  
+
+ gl_FragColor = temp;
+
+ while( a+b > 0){
+   a = a - 1;
+   a = a +1;
+ }
+
+
+}
+

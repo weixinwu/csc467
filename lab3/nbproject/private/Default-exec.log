@@ -1,0 +1,55 @@
+called: g++
+	/nfs/ug/homes-2/c/cheun673/csc467/lab3
+	g++
+	-g
+	-O0
+	-Wall
+	-c
+	-o
+	compiler467.o
+	compiler467.c
+
+called: g++
+	/nfs/ug/homes-2/c/cheun673/csc467/lab3
+	g++
+	-g
+	-O0
+	-Wall
+	-c
+	-o
+	globalvars.o
+	globalvars.c
+
+called: g++
+	/nfs/ug/homes-2/c/cheun673/csc467/lab3
+	g++
+	-g
+	-O0
+	-Wall
+	-c
+	-o
+	scanner.o
+	scanner.c
+
+called: g++
+	/nfs/ug/homes-2/c/cheun673/csc467/lab3
+	g++
+	-g
+	-O0
+	-Wall
+	-c
+	-o
+	parser.o
+	parser.c
+
+called: g++
+	/nfs/ug/homes-2/c/cheun673/csc467/lab3
+	g++
+	-g
+	-O0
+	-Wall
+	-c
+	-o
+	ast.o
+	ast.c
+
